@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1a1b2e"/>
+      <stop offset="100%" stop-color="#0f1019"/>
+    </linearGradient>
+    <linearGradient id="bar1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="bar2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+    <linearGradient id="bar3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="512" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="50%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+  <!-- Subtle ring -->
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="url(#accent)" stroke-width="2" opacity="0.2"/>
+  <!-- Three bars — usage meter -->
+  <rect x="112" y="280" width="72" height="128" rx="12" fill="url(#bar1)"/>
+  <rect x="220" y="200" width="72" height="208" rx="12" fill="url(#bar2)"/>
+  <rect x="328" y="136" width="72" height="272" rx="12" fill="url(#bar3)"/>
+  <!-- Trend line -->
+  <polyline points="148,260 256,185 364,120" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+  <!-- Dots on line -->
+  <circle cx="148" cy="260" r="8" fill="white"/>
+  <circle cx="256" cy="185" r="8" fill="white"/>
+  <circle cx="364" cy="120" r="8" fill="white"/>
+</svg>

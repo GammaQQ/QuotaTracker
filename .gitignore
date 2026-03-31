@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Compiled binary (bun --compile)
+/quotatracker
+
+# macOS Swift
+macos/QuotaTracker/.build/
+macos/QuotaTracker/.swiftpm/
+
+# OS
+.DS_Store
+
+# Editor
+*.swp
+*~
+.vscode/
+.idea/
+
+# Env & secrets
+.env
+.env.*
+*.key
+*.key.pub
+
+# Lockfile (bun)
+# bun.lock is committed for reproducible builds

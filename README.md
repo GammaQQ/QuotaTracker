@@ -16,6 +16,10 @@
   <img src="https://img.shields.io/github/license/GammaQQ/QuotaTracker?style=flat-square" alt="License" />
 </p>
 
+<p align="center">
+  <img src="preview.png" width="420" alt="QuotaTracker Preview" />
+</p>
+
 ---
 
 ## What is this?
@@ -87,18 +91,16 @@ npx quotatracker
 
 Download the latest release for your platform from [GitHub Releases](https://github.com/GammaQQ/QuotaTracker/releases).
 
-### Native macOS App
+### Native macOS App (SwiftUI)
 
-Build from source:
+Download `QuotaTracker-macos-arm64.tar.gz` (Apple Silicon) or `QuotaTracker-macos-x86_64.tar.gz` (Intel) from [GitHub Releases](https://github.com/GammaQQ/QuotaTracker/releases).
 
 ```bash
-cd macos/QuotaTracker
-swift build -c release
+tar xzf QuotaTracker-macos-arm64.tar.gz
+mv QuotaTracker.app /Applications/
 ```
 
-Requires the `quotatracker` CLI binary in one of:
-- `~/.local/bin/quotatracker`
-- `/usr/local/bin/quotatracker`
+> **Note:** On first launch macOS may block the app. Right-click the app → **Open** to bypass the warning, or run: `xattr -cr /Applications/QuotaTracker.app`
 
 ---
 

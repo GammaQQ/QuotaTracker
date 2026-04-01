@@ -172,7 +172,7 @@ export function Dashboard({ data, loading, onRefresh, update }: Props) {
 				<span className="flex-1" />
 				{update?.available && (
 					<a
-						href={`https://github.com/gammaqq/quotatracker/releases/tag/v${update.version}`}
+						href={`https://github.com/GammaQQ/QuotaTracker/releases/tag/v${update.version}`}
 						target="_blank"
 						rel="noreferrer"
 						className="text-[10px] font-medium text-green-400 hover:text-green-300 transition-colors cursor-pointer"

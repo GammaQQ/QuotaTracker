@@ -2,16 +2,38 @@
 	"name": "quotatracker",
 	"type": "module",
 	"version": "0.1.0",
-	"description": "Unified quota tracker — core CLI that outputs JSON for SwiftUI/Tauri UIs",
+	"description": "Real-time quota monitoring for Claude Pro & Max plans — session limits, costs, burn rate, and recommendations",
+	"author": "GammaQQ",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/GammaQQ/QuotaTracker.git"
+	},
+	"homepage": "https://github.com/GammaQQ/QuotaTracker",
+	"keywords": [
+		"claude",
+		"anthropic",
+		"quota",
+		"usage",
+		"tokens",
+		"cost",
+		"monitor",
+		"cli",
+		"claude-code"
+	],
 	"bin": {
-		"quotatracker": "./src/index.ts"
+		"quotatracker": "dist/index.js"
 	},
 	"main": "./dist/index.js",
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"start": "bun ./src/index.ts",
 		"build": "tsdown",
-		"test": "vitest run",
-		"typecheck": "tsc --noEmit"
+		"test": "vitest run --passWithNoTests",
+		"typecheck": "tsc --noEmit",
+		"prepublishOnly": "bun run build"
 	},
 	"devDependencies": {
 		"@types/bun": "^1.2.0",

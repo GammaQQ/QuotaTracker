@@ -7,8 +7,8 @@ use tauri::{
 };
 
 #[tauri::command]
-fn fetch_usage() -> Result<serde_json::Value, String> {
-    let binary = find_binary().ok_or("quotatracker binary not found")?;
+fn fetch_usage(app: tauri::AppHandle) -> Result<serde_json::Value, String> {
+    let binary = find_binary(&app)?;
 
     let output = Command::new(&binary)
         .output()
@@ -25,35 +25,46 @@ fn fetch_usage() -> Result<serde_json::Value, String> {
     Ok(json)
 }
 
+fn find_binary(app: &tauri::AppHandle) -> Result<String, String> {
+    // 1. Bundled sidecar (inside app bundle)
+    if let Ok(resource_dir) = app.path().resource_dir() {
+        let bundled = resource_dir.join("binaries").join("quotatracker");
+        if bundled.is_file() {
+            return Ok(bundled.to_string_lossy().into_owned());
+        }
+        // Windows
+        let bundled_exe = resource_dir.join("binaries").join("quotatracker.exe");
+        if bundled_exe.is_file() {
+            return Ok(bundled_exe.to_string_lossy().into_owned());
+        }
+    }
+
+    // 2. Common install paths
+    let home = std::env::var("HOME")
+        .or_else(|_| std::env::var("USERPROFILE"))
+        .unwrap_or_default();
+
+    let candidates = [
+        format!("{}/.local/bin/quotatracker", home),
+        "/usr/local/bin/quotatracker".to_string(),
+    ];
+
+    for path in &candidates {
+        if std::path::Path::new(path).is_file() {
+            return Ok(path.clone());
+        }
+    }
+
+    // 3. Fall back to PATH
+    Ok("quotatracker".to_string())
+}
+
 #[tauri::command]
 fn update_tray(app: tauri::AppHandle, title: String, tooltip: String) -> Result<(), String> {
     let tray = app.tray_by_id(&TrayIconId::new("main")).ok_or("tray not found")?;
     let _ = tray.set_title(Some(&title));
     let _ = tray.set_tooltip(Some(&tooltip));
     Ok(())
-}
-
-fn find_binary() -> Option<String> {
-    let home = dirs_next().unwrap_or_default();
-    let candidates = vec![
-        format!("{}/pets/aiusage/aiusage/quotatracker", home),
-        format!("{}/.local/bin/quotatracker", home),
-        "/usr/local/bin/quotatracker".to_string(),
-        "quotatracker".to_string(),
-    ];
-
-    for path in &candidates {
-        if std::path::Path::new(path).is_file() {
-            return Some(path.clone());
-        }
-    }
-    Some("quotatracker".to_string())
-}
-
-fn dirs_next() -> Option<String> {
-    std::env::var("HOME")
-        .or_else(|_| std::env::var("USERPROFILE"))
-        .ok()
 }
 
 fn toggle_window(app: &tauri::AppHandle) {
@@ -112,7 +123,6 @@ pub fn run() {
                 })
                 .build(app)?;
 
-            // Hide dock icon on macOS
             #[cfg(target_os = "macos")]
             {
                 app.set_activation_policy(tauri::ActivationPolicy::Accessory);

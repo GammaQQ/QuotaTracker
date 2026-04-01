@@ -71,8 +71,30 @@ actor CoreRunner {
     }
 
     private static func findBinary() -> String {
+        // 1. Bundled binary inside .app bundle (Contents/Resources/bin/quotatracker)
+        if let bundled = Bundle.main.resourceURL?
+            .appendingPathComponent("bin")
+            .appendingPathComponent("quotatracker") {
+            if FileManager.default.isExecutableFile(atPath: bundled.path) {
+                return bundled.path
+            }
+        }
+
+        // 2. Next to the executable (Contents/MacOS/../Resources/bin/)
+        if let execURL = Bundle.main.executableURL {
+            let siblingBin = execURL
+                .deletingLastPathComponent()        // Contents/MacOS/
+                .deletingLastPathComponent()        // Contents/
+                .appendingPathComponent("Resources")
+                .appendingPathComponent("bin")
+                .appendingPathComponent("quotatracker")
+            if FileManager.default.isExecutableFile(atPath: siblingBin.path) {
+                return siblingBin.path
+            }
+        }
+
+        // 3. Common install paths
         let candidates = [
-            "\(NSHomeDirectory())/pets/aiusage/aiusage/quotatracker",
             "\(NSHomeDirectory())/.local/bin/quotatracker",
             "/usr/local/bin/quotatracker",
         ]

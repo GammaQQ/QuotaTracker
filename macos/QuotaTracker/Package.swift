@@ -11,6 +11,7 @@ let package = Package(
             exclude: ["Resources/Info.plist"],
             resources: [
                 .process("Resources/Assets.xcassets"),
+                .copy("Resources/bin"),
             ]
         ),
     ]

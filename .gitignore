@@ -6,10 +6,14 @@ dist/
 
 # Compiled binary (bun --compile)
 /quotatracker
+desktop/src-tauri/binaries/
+macos/QuotaTracker/Sources/Resources/bin/quotatracker
 
 # macOS Swift
 macos/QuotaTracker/.build/
 macos/QuotaTracker/.swiftpm/
+macos/*.app
+macos/*.tar.gz
 
 # OS
 .DS_Store

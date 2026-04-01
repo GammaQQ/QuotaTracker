@@ -1,4 +1,4 @@
-name: Release Desktop
+name: Release
 
 on:
   push:
@@ -6,7 +6,8 @@ on:
       - 'v*'
 
 jobs:
-  release:
+  # ── Tauri Desktop (macOS, Linux, Windows) ──────────────────────────
+  tauri:
     permissions:
       contents: write
     strategy:
@@ -15,12 +16,16 @@ jobs:
         include:
           - platform: macos-latest
             args: --target aarch64-apple-darwin
+            target: aarch64-apple-darwin
           - platform: macos-latest
             args: --target x86_64-apple-darwin
+            target: x86_64-apple-darwin
           - platform: ubuntu-22.04
             args: ''
+            target: x86_64-unknown-linux-gnu
           - platform: windows-latest
             args: ''
+            target: x86_64-pc-windows-msvc
 
     runs-on: ${{ matrix.platform }}
 
@@ -38,6 +43,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - uses: pnpm/action-setup@v4
         with:
           version: 9
@@ -47,6 +56,12 @@ jobs:
           node-version: 20
           cache: pnpm
           cache-dependency-path: desktop/pnpm-lock.yaml
+
+      - name: Install CLI dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build CLI sidecar binary
+        run: bun build --compile src/index.ts --outfile desktop/src-tauri/binaries/quotatracker-${{ matrix.target }}
 
       - name: Install frontend dependencies
         working-directory: desktop
@@ -66,3 +81,44 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+
+  # ── Native macOS SwiftUI App ───────────────────────────────────────
+  macos-native:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            bun_target: darwin-arm64
+          - arch: x86_64
+            bun_target: darwin-x64
+
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install CLI dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build .app bundle
+        run: macos/build-app.sh ${{ matrix.arch }}
+
+      - name: Package .app
+        run: |
+          cd macos
+          tar czf "QuotaTracker-macos-${{ matrix.arch }}.tar.gz" QuotaTracker.app
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: macos/QuotaTracker-macos-*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

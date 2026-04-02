@@ -13,34 +13,55 @@ function updateTray(data: UsageOutput) {
 	invoke("update_tray", { title, tooltip }).catch(() => {})
 }
 
-export function useUsage(intervalMs = 60_000) {
+/** Pick poll interval based on utilization: high ≥50% → 2min, medium ≥20% → 3min, low → 4min */
+function getInterval(data: UsageOutput | null): number {
+	const util = data?.oauth?.fiveHour.utilization
+	if (util == null) return 3 * 60_000
+	if (util >= 0.5) return 2 * 60_000
+	if (util >= 0.2) return 3 * 60_000
+	return 4 * 60_000
+}
+
+export function useUsage() {
 	const [data, setData] = useState<UsageOutput | null>(null)
 	const [error, setError] = useState<string | null>(null)
 	const [loading, setLoading] = useState(false)
-	const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const dataRef = useRef<UsageOutput | null>(null)
 
-	const refresh = useCallback(async () => {
-		if (loading) return
+	const scheduleNext = useCallback(() => {
+		if (timerRef.current) clearTimeout(timerRef.current)
+		const ms = getInterval(dataRef.current)
+		timerRef.current = setTimeout(() => poll(), ms)
+	}, [])
+
+	const poll = useCallback(async () => {
 		setLoading(true)
 		try {
 			const result = await invoke<UsageOutput>("fetch_usage")
 			setData(result)
+			dataRef.current = result
 			setError(null)
 			updateTray(result)
 		} catch (err) {
 			setError(String(err))
 		} finally {
 			setLoading(false)
+			scheduleNext()
 		}
-	}, [loading])
+	}, [scheduleNext])
+
+	const refresh = useCallback(async () => {
+		if (timerRef.current) clearTimeout(timerRef.current)
+		await poll()
+	}, [poll])
 
 	useEffect(() => {
-		refresh()
-		timerRef.current = setInterval(refresh, intervalMs)
+		poll()
 		return () => {
-			if (timerRef.current) clearInterval(timerRef.current)
+			if (timerRef.current) clearTimeout(timerRef.current)
 		}
-	}, [intervalMs])
+	}, [])
 
 	return { data, error, loading, refresh }
 }

@@ -3,7 +3,7 @@ import { useUpdater } from "./hooks/useUpdater"
 import { Dashboard } from "./components/Dashboard"
 
 export default function App() {
-	const { data, error, loading, refresh } = useUsage(60_000)
+	const { data, error, loading, refresh } = useUsage()
 	const update = useUpdater()
 
 	if (!data && !error) {
